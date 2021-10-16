@@ -1,0 +1,25 @@
+version: "3.3"
+
+services:
+
+  api:
+    #restart: always
+    build:
+      context: .
+    image: pruebabackid:1.0.0
+    env_file: docker-compose.env
+    depends_on:
+      - mongod
+    ports:
+      - "3000:3000"
+
+  mongod:
+    image: mongo:4.1.13
+#    restart: always
+    ports:
+      - "27017:27017"
+    command: ['--logpath', '/var/log/mongodb/mongod.log', '--bind_ip_all']
+    volumes:
+      #- ./config/mongo/mongod.conf:/etc/mongod.conf
+      - ./data/mongo:/data/db
+      #- ./log/mongo:/var/log/mongodb

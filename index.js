@@ -8,9 +8,11 @@ var MongoClient = require('mongodb').MongoClient;
 var db = null;
 
 const DB_NAME = "test_weather";
-const CS = "mongodb://localhost:27017/weather_test?readPreference=primary&appname=MongoDB%20Compass&ssl=false";
+var CS = "mongodb://0.0.0.0:27017/weather_test?readPreference=primary&appname=MongoDB%20Compass&ssl=false";
+if(process.env.CS) CS = process.env.CS;
 
 const api_key = "a53f9dc7d1ee9862a5fac589bd8eb46f";
+if(process.env.API_KEY) API_KEY = process.env.API_KEY;
 
 function diff_seconds(date1, date2)
 {
@@ -64,7 +66,7 @@ app.get('/weather', (req, res) => {
                 db.collection("weather_cache").updateOne({ lat: lat, lon: lon }, { $set: { timestamp: timestamp, data: response.data } }, { upsert: true }, 
                 function(err, res) {
                     if (err) throw err;
-                    console.log("1 document inserted");
+                    console.log(lat + ";" + lon + " saved to mongo at " + timestamp);
                 });        
 
                 var output = build_output(timestamp, response);
@@ -111,6 +113,8 @@ app.get('/weather', (req, res) => {
 app.listen(port, () => {
 
     console.log(`Listening at http://localhost:${port}`)
+
+    console.log("Connecting " + CS);
 
     MongoClient.connect(CS, { useNewUrlParser: true }, (error, client) => {
         if(error) {
